@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="style.css">
+ 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrambled Word Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    #game-container { margin-top: 50px; }
+    .hint { font-size: 0.9em; color: gray; }
+    .score, .timer { margin: 20px 0; }
+    input { padding: 10px; font-size: 1em; }
+    button { padding: 10px 20px; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <h1>Scrambled Word Game</h1>
+  <div id="game-container">
+    <p id="scrambled-word"></p>
+    <p class="hint" id="hint"></p>
+    <input type="text" id="guess" placeholder="Your guess" />
+    <button onclick="checkGuess()">Submit</button>
+    <p id="feedback"></p>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="timer">Time Left: <span id="timer">30</span>s</div>
+  </div>
+  <script>
+    const words = [
+      { word: "javascript", hint: "A popular programming language for web development" },
+      { word: "browser", hint: "Software used to access the web" },
+      { word: "function", hint: "A block of reusable code" },
+      { word: "developer", hint: "Someone who writes code" },
+      { word: "debugging", hint: "Finding and fixing errors in code" }
+    ];
+    
+    let currentWord = {};
+    let score = 0;
+    let timeLeft = 30;
+    let timer;
+
+    function scramble(word) {
+      return word.split('').sort(() => Math.random() - 0.5).join('');
+    }
+
+    function pickNewWord() {
+      if (words.length === 0) {
+        endGame();
+        return;
+      }
+
+      currentWord = words.splice(Math.floor(Math.random() * words.length), 1)[0];
+      document.getElementById("scrambled-word").textContent = scramble(currentWord.word);
+      document.getElementById("hint").textContent = `Hint: ${currentWord.hint}`;
+      document.getElementById("guess").value = "";
+      document.getElementById("feedback").textContent = "";
+    }
+
+    function checkGuess() {
+      const guess = document.getElementById("guess").value.trim().toLowerCase();
+      if (!guess) {
+        document.getElementById("feedback").textContent = "Please enter a guess!";
+        return;
+      }
+
+      if (guess === currentWord.word) {
+        score++;
+        document.getElementById("score").textContent = score;
+        document.getElementById("feedback").textContent = "Correct! 🎉";
+        pickNewWord();
+      } else {
+        document.getElementById("feedback").textContent = "Incorrect, try again!";
+      }
+    }
+
+    function startTimer() {
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      document.getElementById("game-container").innerHTML = `
+        <h2>Game Over!</h2>
+        <p>Your final score is: ${score}</p>
+        <button onclick="restartGame()">Restart</button>
+      `;
+    }
+
+    function restartGame() {
+      location.reload();
+    }
+
+    // Initialize the game
+    pickNewWord();
+    startTimer();
+  </script>
+</body>
+</html>
+
